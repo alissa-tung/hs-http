@@ -55,5 +55,8 @@ emptyBody = V.empty
 pattern CRLF :: V.Bytes
 pattern CRLF = "\r\n"
 
+pSkipCRLF :: P.Parser ()
+pSkipCRLF = P.word8 C.CARRIAGE_RETURN >> P.word8 C.NEWLINE
+
 pattern SPACE :: V.Bytes
 pattern SPACE = " "

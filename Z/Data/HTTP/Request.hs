@@ -83,13 +83,5 @@ requestToBytes q = mconcat [method, SPACE, path, SPACE, version, CRLF, headers, 
     headers :: V.Bytes = headersToBytes $ requestHeaders q
     body :: V.Bytes = requestBody q
 
-parseHeaderLn :: P.Parser (HeaderHeader, HeaderValue)
-parseHeaderLn = do
-  header <- P.takeWhile (/= C.COLON)
-  P.skipWord8 >> P.skipWord8
-  value <- P.takeWhile (/= C.CARRIAGE_RETURN)
-  P.skipWord8 >> P.skipWord8
-  pure (header, value)
-
 debugShowRequest :: Request -> String
 debugShowRequest = map C.w2c . (V.unpack . requestToBytes)

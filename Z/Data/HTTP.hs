@@ -14,7 +14,7 @@ hostToBytes (hostName, portNumber) = "Host: " <> toBytes hostName <> ":" <> B.bu
 defaultPortHTTP :: PortNumber
 defaultPortHTTP = 80
 
-data HTTPConnection = HTTPConnection
+data HTTPClient = HTTPClient
   { httpClientIn :: BufferedInput,
     httpClientOut :: BufferedOutput
   }

@@ -21,24 +21,24 @@ resolveDNS (hostName, portNumber) hints = head <$> getAddrInfo hints hostName (c
 defaultHintsHTTP :: Maybe AddrInfo
 defaultHintsHTTP = Just $ defaultHints {addrFlags = [AI_NUMERICSERV], addrSocketType = SOCK_STREAM}
 
-httpClient :: IODev dev => dev -> IO HTTPConnection
+httpClient :: IODev dev => dev -> IO HTTPClient
 httpClient tcp = do
   (i, o) <- newBufferedIO tcp
-  pure $ HTTPConnection i o
+  pure $ HTTPClient i o
 
-httpClient' :: (Input i, Output o) => i -> o -> Int -> Int -> IO HTTPConnection
+httpClient' :: (Input i, Output o) => i -> o -> Int -> Int -> IO HTTPClient
 httpClient' i o inSize outSize = do
   bi <- newBufferedInput' inSize i
   bo <- newBufferedOutput' outSize o
-  pure $ HTTPConnection bi bo
+  pure $ HTTPClient bi bo
 
-sendRequest :: HTTPConnection -> Request -> IO ()
+sendRequest :: HTTPClient -> Request -> IO ()
 sendRequest c q = writeBuffer' (httpClientOut c) (requestToBytes q)
 
-receiveResponse :: HTTPConnection -> IO Response
+receiveResponse :: HTTPClient -> IO Response
 receiveResponse c = do
   o <- readBuffer (httpClientIn c)
-  return $ parseResponse o
+  parseResponse o
 
-withResponse :: HTTPConnection -> (Response -> IO b) -> IO b
+withResponse :: HTTPClient -> (Response -> IO b) -> IO b
 withResponse c = (>>=) (receiveResponse c)
