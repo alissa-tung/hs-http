@@ -5,6 +5,7 @@ import Z.Data.CBytes
 import Z.Data.HTTP
 import Z.Data.HTTP.Request
 import Z.Data.HTTP.Response
+import Z.Data.HTTP.Response.Parser
 import qualified Z.Data.Text as T
 import Z.IO
 import Z.IO.Internal

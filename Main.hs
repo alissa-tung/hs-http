@@ -5,6 +5,7 @@ import Z.Data.HTTP
 import Z.Data.HTTP.Internal
 import Z.Data.HTTP.Request as Q
 import Z.Data.HTTP.Response
+import Z.Data.Internal
 import qualified Z.Data.Text as T
 import qualified Z.Data.Vector as V
 import Z.HTTP.Client

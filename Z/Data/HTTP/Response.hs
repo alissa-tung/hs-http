@@ -90,49 +90,12 @@ parseStatusCode = do
 -}
 
 responseToBytes :: Response -> V.Bytes
-responseToBytes a = mconcat [version, SPACE, statusCode, SPACE, statusMessage, CRLF, responseBody a, CRLF]
+responseToBytes a = mconcat [version, SPACE, statusCode, SPACE, statusMessage, CRLF, headersToBytes headers, responseBody a, CRLF]
   where
     version = versionToBytes $ responseVersion a
     statusCode = statusCodeToBytes $ responseCode a
     statusMessage = responseMessage a
-
-parseResponse :: V.Bytes -> IO Response
-parseResponse = unwrap T.empty . P.parse' responseParser
-
-responseParser :: P.Parser Response
-responseParser = do
-  P.bytes "HTTP/"
-  fstVerNum <- P.peek
-  c <- P.peek
-  sndVerNum <- case c of
-    C.SPACE -> undefined
-    C.DOT -> P.peek
-  P.skipSpaces
-
-  aCode <- P.peek
-  bCode <- P.peek
-  cCode <- P.peek
-  let code = parseStatusCode (aCode, bCode, cCode)
-  P.skipSpaces
-
-  msg <- P.takeWhile (/= C.CARRIAGE_RETURN)
-  P.skipWord8 >> P.skipWord8
-
-  let readLoop = do
-        (txt, eof) <- undefined
-        if eof
-          then pure txt
-          else undefined
-  readLoop
-
-  pure $ Response undefined code msg undefined undefined
-  where
-    h = do
-      c <- P.peekMaybe
-      case c of
-        Nothing -> pure undefined
-        Just x -> undefined
-      undefined
+    headers = responseHeaders a
 
 parseStatusCode :: (Word8, Word8, Word8) -> StatusCode
 parseStatusCode (a, b, c) =

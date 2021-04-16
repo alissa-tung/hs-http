@@ -15,7 +15,7 @@ readme = do
   addr <- resolveDNS mozHost defaultHintsHTTP
   withResource (initTCPClient defaultTCPClientConfig {tcpRemoteAddr = addrAddress addr}) $ \tcp -> do
     -- Start a HTTP client.
-    c <- httpClient mozHost tcp
+    c <- httpClient tcp
     -- Build a simple HTTP request.
     let q = buildRequest $ do
           Q.http GET "/" HTTP1_1
