@@ -1,3 +1,5 @@
+{-# LANGUAGE BangPatterns #-}
+
 module Z.Data.HTTP.Response.Parser where
 
 import Data.Bifunctor
@@ -94,9 +96,11 @@ testParser = do
           Just C.CARRIAGE_RETURN -> P.word8 C.CARRIAGE_RETURN $> P.word8 C.NEWLINE $> acc
           Just c -> do
             txtLn <- readHeaderLn
-            pure $! unsafePerformIO (putStrLn $ debugShow $ "[DEBUG]: " <> c `V.cons` "\n")
             pure $! unsafePerformIO (putStrLn $ debugShow $ "[DEBUG]: " <> txtLn <> "\n")
-            loopRead (parseHeader txtLn `V.cons` acc)
+            let parseRes = parseHeader txtLn
+            pure $! unsafePerformIO (putStrLn $ debugShow $ "[DEBUG]: " <> headerToBytes parseRes <> "\n")
+            loopRead
+              (parseRes `V.cons` acc)
   hs <- loopRead V.empty
 
   pure
@@ -122,7 +126,7 @@ testParser = do
       header <- P.takeWhile (/= C.COLON)
       P.word8 C.COLON *> P.skipSpaces
       value <- P.takeWhile (/= C.CARRIAGE_RETURN)
-      P.word8 C.CARRIAGE_RETURN *> P.word8 C.NEWLINE
+      -- P.word8 C.CARRIAGE_RETURN *> P.word8 C.NEWLINE
       pure (header, value)
 
 debugMain :: IO ()
@@ -140,7 +144,7 @@ debugMain = do
       <> msg
       <> ";\n"
       <> "\n"
-      -- <> headersToBytes hs
+      <> headersToBytes hs
       <> "\n"
       <> "Left with:\n"
       <> l
