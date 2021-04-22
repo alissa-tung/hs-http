@@ -1,3 +1,13 @@
+# `hs-http`
+
+## Development
+
+```sh
+git clone git@github.com:alissa-tung/hs-http.git
+cd ./hs-http
+cabal update && cabal build
+```
+
 ### Client
 
 ```haskell
@@ -24,7 +34,7 @@ readme = do
     -- Send the request.
     sendRequest c q
     -- Receive a response then perform some actions using the response.
-    withResponse c $ \a -> printStdLn (responseToBytes a)
+    withResponse c $ \a -> putStrLn $ debugShow (responseToBytes a)
   where
     mozHost :: Host = ("developer.mozilla.org", defaultPortHTTP)
 ```

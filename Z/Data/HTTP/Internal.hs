@@ -21,10 +21,12 @@ parseVersion = do
   let c1' = fromMaybe (error "todo") c1
   return (if c0 == C.DIGIT_1 && c1' == C.DIGIT_1 then HTTP1_1 else error "todo")
 
+type Headers :: *
+
 type Headers = (V.Vector (HeaderHeader, HeaderValue))
 
-headersToBytes :: Headers -> V.Bytes
-headersToBytes hs = case V.unpack hs of
+headersToBytes' :: Headers -> V.Bytes
+headersToBytes' hs = case V.unpack hs of
   [] -> V.empty
   h : hs -> headerToBytes h <> headersToBytes' hs
   where
@@ -32,7 +34,21 @@ headersToBytes hs = case V.unpack hs of
       [] -> V.empty
       h : hs -> headerToBytes h <> headersToBytes' hs
 
+headersToBytes :: Headers -> V.Bytes
+headersToBytes hs = let hs' = V.unpack hs in mconcat (map headerToBytes hs')
+
 type Header = (HeaderHeader, HeaderValue)
+
+data HeaderPayload = HTransferEncoding [TransferCoding] | HContentLength
+
+data TransferCoding
+  = Chunked
+  | Compress
+  | Deflate
+  | GZIP
+  | TransferExtension
+
+data TransferParameter
 
 headerToBytes :: Header -> V.Bytes
 headerToBytes (header, value) = header <> ": " <> value <> CRLF
@@ -51,6 +67,10 @@ type Body = V.Bytes
 
 emptyBody :: Body
 emptyBody = V.empty
+
+data LinearWhitespace = OWS | RWS | BWS
+
+data TokenChar
 
 pattern CRLF :: V.Bytes
 pattern CRLF = "\r\n"

@@ -1,3 +1,5 @@
+{-# LANGUAGE DataKinds #-}
+
 module Z.Data.HTTP where
 
 import qualified Z.Data.Builder as B
@@ -5,6 +7,8 @@ import Z.Data.CBytes
 import qualified Z.Data.Vector as V
 import Z.IO
 import Z.IO.Network
+
+type Host :: *
 
 type Host = (HostName, PortNumber)
 

@@ -75,7 +75,7 @@ pattern LANG_FR :: Lang
 pattern LANG_FR = "fr"
 
 requestToBytes :: Request -> V.Bytes
-requestToBytes q = mconcat [method, SPACE, path, SPACE, version, CRLF, headers, body, CRLF]
+requestToBytes q = mconcat [method, SPACE, path, SPACE, version, CRLF, headers, CRLF, body, CRLF]
   where
     method :: V.Bytes = requestMethod q
     path :: V.Bytes = requestPath q

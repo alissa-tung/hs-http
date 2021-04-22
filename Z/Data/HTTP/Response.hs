@@ -20,14 +20,10 @@ data Response = Response
     responseBody :: Body
   }
 
-{-
-data StatusCode
-  = Informational Informational
-  | Success Success
-  | Redirection Redirection
-  | ClientError ClientError
-  | ServerError ServerError
--}
+data ResponseExt = ResponseExt
+  { responseResponse :: Response,
+    payloadHeader :: HeaderPayload
+  }
 
 newtype StatusCode = StatusCode Word16
   deriving newtype (Num, Show, Print)
@@ -42,52 +38,10 @@ type ClientError = Word16
 
 type ServerError = Word16
 
--- statusCodeToBytes :: StatusCode -> V.Bytes
--- statusCodeToBytes (Informational n) = (B.build . B.int) n
--- statusCodeToBytes (Success n) = (B.build . B.int) n
--- statusCodeToBytes (Redirection n) = (B.build . B.int) n
--- statusCodeToBytes (ClientError n) = (B.build . B.int) n
--- statusCodeToBytes (ServerError n) = (B.build . B.int) n
-
 type StatusMessage = V.Bytes
 
 statusCodeToBytes :: StatusCode -> V.Bytes
 statusCodeToBytes (StatusCode n) = (B.build . B.int) n
-
-{-
-codeToMessage :: StatusCode -> StatusMessage
-codeToMessage = error "todo"
-
-parseResponse :: HasCallStack => V.Bytes -> Response
-parseResponse a = undefined parser
-
-parser :: P.Parser Response
-parser = do
-  version <- P.takeWhile (/= C.SPACE)
-  P.skipWord8
-  statusCode <- P.takeWhile (/= C.SPACE)
-  P.skipWord8
-  statusMessage <- P.takeWhile (/= C.CARRIAGE_RETURN)
-  P.skipWord8 >> P.skipWord8
-  undefined
-  pure $ Response (undefined parseVersion version) (undefined parseStatusCode statusCode) statusMessage (undefined undefined undefined) undefined
-
-classifyStatusCode' :: Word16 -> Informational -> StatusCode
-classifyStatusCode' a = case a of
-  1 -> Informational
-  2 -> Success
-  3 -> Redirection
-  4 -> ClientError
-  5 -> ServerError
-  _ -> calculated
-
-parseStatusCode :: P.Parser StatusCode
-parseStatusCode = do
-  a <- P.int @Word16
-  b <- P.int
-  c <- P.int
-  pure $ classifyStatusCode' a (a * 100 + b * 10 + c)
--}
 
 responseToBytes :: Response -> V.Bytes
 responseToBytes a = mconcat [version, SPACE, statusCode, SPACE, statusMessage, CRLF, headersToBytes headers, responseBody a, CRLF]

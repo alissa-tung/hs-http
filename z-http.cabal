@@ -34,5 +34,6 @@ library
     OverloadedStrings
     PatternSynonyms
     ScopedTypeVariables
+    StandaloneKindSignatures
     TypeApplications
     UnicodeSyntax
