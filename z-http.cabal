@@ -13,6 +13,7 @@ library
     Z.Data.HTTP.Request
     Z.Data.HTTP.Response
     Z.Data.HTTP.Response.Parser
+    Z.Data.HTTP.Types
     Z.Data.Internal
     Z.HTTP.Client
     Z.HTTP.Internal

@@ -53,6 +53,11 @@ setHeader h v = do
   q <- get
   put q {requestHeaders = snocHeader (requestHeaders q) h v}
 
+setMessageBodyHeader :: MessageBody -> RequestBuilder ()
+setMessageBodyHeader h = do
+  q <- get
+  undefined
+
 http :: Method -> Path -> HTTPVersion -> RequestBuilder ()
 http m p v = do
   q <- get

@@ -39,7 +39,16 @@ headersToBytes hs = let hs' = V.unpack hs in mconcat (map headerToBytes hs')
 
 type Header = (HeaderHeader, HeaderValue)
 
-data HeaderPayload = HTransferEncoding [TransferCoding] | HContentLength
+data HeaderPayload
+  = HTransferEncoding [TransferCoding]
+  | -- | Content-Length = 1*DIGIT
+    HContentLength Int -- readExactly :: HasCallStack => Int -> BufferedInput -> IO V.Bytes
+
+data MessageBodyHeader = TransferEncoding | ContentLength Int
+
+type MessageBody =
+  -- | message-body = *OCTET
+  V.Bytes
 
 data TransferCoding
   = Chunked
