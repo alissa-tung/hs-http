@@ -1,6 +1,9 @@
 module Z.Data.HTTP.Types where
 
+import Data.CaseInsensitive (CI)
 import Data.String (IsString)
+import qualified Z.Data.ASCII as C
+import Z.Data.HTTP.Types.Internal
 import qualified Z.Data.Vector as V
 
 -- | Message Format
@@ -26,14 +29,47 @@ data StartLine = Either RequestLine StatusLine
 -- the request-target, another single space (SP), the protocol version, and
 -- ends with CRLF.
 -- See https://datatracker.ietf.org/doc/html/rfc7230#section-3.1.1.
-type RequestLine = (Method, RequestTarget, HTTPVersion)
+data RequestLine = RequestLine
+  { requestMethod :: Method,
+    requestTarget :: RequestTarget,
+    requestHTTPVersion :: HTTPVersion
+  }
 
 -- | Method Token
 -- The method token indicates the request method to be performed on the target resource.
 -- The request method is case-sensitive. By convention, standardized methods are defined in all-uppercase US-ASCII letters.
 -- See https://datatracker.ietf.org/doc/html/rfc7231#section-4.
-newtype Method = Method V.Bytes
+newtype Method = Method (CI V.Bytes)
   deriving (IsString)
+
+-- | Request Target
+-- Once an inbound connection is obtained, the client sends an HTTP request
+-- message with a request-target derived from the target URI.
+-- There are four distinct formats for the request-target, depending on both
+-- the method being requested and whether the request is to a proxy.
+-- See https://datatracker.ietf.org/doc/html/rfc7230#section-5.3.
+data RequestTarget = ROriginForm OriginForm | RAbsoluteForm AbsoluteForm | RAuthorityForm AuthorityForm | RAsteriskForm AsteriskForm
+
+data PathChar = PUnreservedChar UnreservedChar | PPctEncoded PctEncoded | PSubDelims SubDelims
+
+pattern PColon :: PathChar
+pattern PColon = C.COLON
+
+pattern PAt :: PathChar
+pattern PAt = C.AT
+
+data OriginForm = OriginForm AbsolutePath Maybe Query
+
+newtype AbsolutePath = RawAbsolutePath V.Vector Segment
+
+newtype Query = Query V.Vector QueryChar
+
+data QueryChar = QPathChar PathChar | QSlash | QQuestion
+
+mkAbsolutePath :: V.Vector Segment -> AbsolutePath
+mkAbsolutePath xs = if V.length xs >= 1 then RawAbsolutePath xs else undefined
+
+newtype Segment = Segment V.Vector PathChar
 
 -- | Message Body
 -- The message body (if any) of an HTTP message is used to carry the payload

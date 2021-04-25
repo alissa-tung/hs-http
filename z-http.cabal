@@ -14,14 +14,16 @@ library
     Z.Data.HTTP.Response
     Z.Data.HTTP.Response.Parser
     Z.Data.HTTP.Types
+    Z.Data.HTTP.Types.Internal
     Z.Data.Internal
     Z.HTTP.Client
     Z.HTTP.Internal
     Z.IO.Internal
 
   build-depends:
-    , base    ^>=4.14.1.0
-    , mtl     ^>=2.2.2
+    , base              ^>=4.14.1.0
+    , case-insensitive
+    , mtl               ^>=2.2.2
     , Z-Data
     , Z-IO
 
@@ -30,6 +32,7 @@ library
     ApplicativeDo
     ConstraintKinds
     DerivingStrategies
+    GADTs
     GeneralizedNewtypeDeriving
     LambdaCase
     OverloadedStrings
