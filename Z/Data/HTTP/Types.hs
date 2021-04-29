@@ -1,3 +1,16 @@
+{- An HTTP "client" is a program that establishes a connection to a server for the purpose of sending one or more HTTP requests.
+   An HTTP "server" is a program that accepts connections in order to service HTTP requests by sending HTTP responses. -}
+
+-- The "close" connection option is defined for a sender to signal that
+--    this connection will be closed after completion of the response.  For
+--    example,
+
+--      Connection: close
+
+--    in either the request or the response header fields indicates that
+--    the sender is going to close the connection after the current
+--    request/response is complete (Section 6.6).
+
 module Z.Data.HTTP.Types where
 
 import Data.CaseInsensitive (CI)
@@ -19,10 +32,14 @@ data HTTPMessage = HTTPMessage
     messageBody :: Maybe MessageBody
   }
 
+data HeaderFields
+
 -- | Start Line
 -- An HTTP message can be either a request from client to server or a response from server to client.
 -- See https://datatracker.ietf.org/doc/html/rfc7230#section-3.1.
 data StartLine = Either RequestLine StatusLine
+
+data StatusLine
 
 -- | Request Line
 -- A request-line begins with a method token, followed by a single space (SP),
@@ -34,6 +51,8 @@ data RequestLine = RequestLine
     requestTarget :: RequestTarget,
     requestHTTPVersion :: HTTPVersion
   }
+
+data HTTPVersion
 
 -- | Method Token
 -- The method token indicates the request method to be performed on the target resource.
@@ -50,26 +69,35 @@ newtype Method = Method (CI V.Bytes)
 -- See https://datatracker.ietf.org/doc/html/rfc7230#section-5.3.
 data RequestTarget = ROriginForm OriginForm | RAbsoluteForm AbsoluteForm | RAuthorityForm AuthorityForm | RAsteriskForm AsteriskForm
 
+data AbsoluteForm
+
+data AuthorityForm
+
+data AsteriskForm
+
+newtype TargetURI = TargetURI V.Bytes
+  deriving (IsString)
+
 data PathChar = PUnreservedChar UnreservedChar | PPctEncoded PctEncoded | PSubDelims SubDelims
 
-pattern PColon :: PathChar
-pattern PColon = C.COLON
+-- pattern PColon :: PathChar
+-- pattern PColon =  C.COLON
 
-pattern PAt :: PathChar
-pattern PAt = C.AT
+-- pattern PAt :: PathChar
+-- pattern PAt = C.AT
 
-data OriginForm = OriginForm AbsolutePath Maybe Query
+data OriginForm = OriginForm AbsolutePath (Maybe Query)
 
-newtype AbsolutePath = RawAbsolutePath V.Vector Segment
+newtype AbsolutePath = RawAbsolutePath (V.Vector Segment)
 
-newtype Query = Query V.Vector QueryChar
+newtype Query = Query (V.Vector QueryChar)
 
 data QueryChar = QPathChar PathChar | QSlash | QQuestion
 
 mkAbsolutePath :: V.Vector Segment -> AbsolutePath
 mkAbsolutePath xs = if V.length xs >= 1 then RawAbsolutePath xs else undefined
 
-newtype Segment = Segment V.Vector PathChar
+newtype Segment = Segment (V.Vector PathChar)
 
 -- | Message Body
 -- The message body (if any) of an HTTP message is used to carry the payload
